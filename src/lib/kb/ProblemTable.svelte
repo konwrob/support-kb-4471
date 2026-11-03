@@ -27,6 +27,7 @@
 <p class="sum">
   <strong>{mergedCount(all, ticket)}</strong> reports merged into #{ticket} ·
   <strong>{groups.length}</strong> {groups.length === 1 ? 'problem' : 'problems'} ·
+  each report counted once, under the cause it is filed under ·
   {copies(all)} duplicate rows in the export, counted once
 </p>
 
@@ -38,7 +39,7 @@
     {#each groups as g (g.problem)}
       <tr>
         <td><code>{g.problem}</code><br /><span class="muted">{LABEL[g.problem]}</span></td>
-        <td><strong>{g.reports.length}</strong></td>
+        <td><strong>{g.reports.length}</strong>{#if g.filedUnder.length}<br /><span class="muted">also counted under {g.filedUnder.join(', ')}</span>{/if}</td>
         <td>{g.tenants.length}</td>
         <td class="muted">{list(g.channels)}</td>
         <td class="muted">{list(g.taggedAs)}</td>
@@ -48,6 +49,12 @@
     {/each}
   </tbody>
 </table>
+
+{#each groups as g (g.problem)}
+  {#if g.readAsOneDay}
+    <p class="muted">{g.readAsOneDay} of the <code>{g.problem}</code> reports read as a one-day move: filed and counted under <code>{g.problem}</code> by tenant, and tracked as <code>one-day</code>.</p>
+  {/if}
+{/each}
 
 <style>
   .sum { font-size: 1.05rem; }

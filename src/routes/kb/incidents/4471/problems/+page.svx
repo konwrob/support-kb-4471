@@ -39,7 +39,8 @@ Reports: <ProblemCount ticket={4471} problem="parser" />, from <ProblemCount tic
 Every tenant on file writes the day first. The shared parser reads every date month first, so a
 date with a day of 12 or less comes out with day and month swapped: "Customer booked 7 April
 and got an invite for 4 July." It reaches people through the app, by email, and through the
-booking-v2 form. This is the bug #4471 describes, and the fix that is queued.
+booking-v2 form. This is the bug #4471 describes, and the fix that is queued. The count follows the
+desk's rule: it includes the reports read as a one-day move (problem 3), filed here by tenant.
 Ticket: <a href={parserTicket}>#1</a>.
 
 ### 2 · The booking-v3 form hint says MM/DD/YYYY
@@ -56,8 +57,8 @@ reading what its hint asks for). Ticket: <a href={hintTicket}>#2</a>.
 Reports: <ProblemCount ticket={4471} problem="one-day" />. Each describes a date that moves by exactly one
 day, not a swapped day and month: "Invite says Tuesday 12 May. Calendar says Monday 11 May."
 "Client in Lisbon got Tuesday. Client in Toronto got Monday. Same meeting." The desk already read
-them this way (`desk-notes.json`), but the cause table files them under the tenant's cause, so
-they disappear into problem 1. A day-first parser cannot shift a date by one day; this looks like a
+them this way (`desk-notes.json`). By the desk's rule they stay filed and counted under the
+tenant's cause, problem 1, but the parser fix will not close them. A day-first parser cannot shift a date by one day; this looks like a
 time zone conversion. Ticket: <a href={oneDayTicket}>#3</a>.
 
 ## How these were counted
@@ -67,7 +68,8 @@ time zone conversion. Ticket: <a href={oneDayTicket}>#3</a>.
 - The cause comes from the tenant (its locale and booking form) and the channel, using
   `causes.ts`, not from the intake tag. Intake guessed from the reporter's browser, and its tag
   disagrees with the tenant's cause on dozens of reports.
-- Reports the desk read as a one-day move (`desk-notes.json`) are their own problem.
+- Reports the desk read as a one-day move (`desk-notes.json`) are counted where they are filed, under
+  their tenant's cause, as the desk's cause table does, and tracked as a problem of their own.
 - All numbers on this page are computed at render time by `problems.ts`; none is typed in.
 
 ## What changes on the desk
