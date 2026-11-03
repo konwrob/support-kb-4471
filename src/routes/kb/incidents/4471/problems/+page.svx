@@ -1,0 +1,79 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: support desk
+status: open
+reviewed: 2026-11-03
+signature: konwrob
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import ProblemCount from '#lib/kb/ProblemCount.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+
+  const repo = 'https://github.com/konwrob/support-kb-4471/issues';
+  const parserTicket = `${repo}/1`;
+  const hintTicket = `${repo}/2`;
+  const oneDayTicket = `${repo}/3`;
+  const tickets = { parser: parserTicket, hint: hintTicket, 'one-day': oneDayTicket };
+</script>
+
+[#4471](/kb/incidents/4471) is marked **known**: one issue, one fix queued. The reports merged
+into it describe three different problems. The queued parser fix closes only the first one.
+
+<Callout kind="warn">
+Not one issue. Three problems, each with its own ticket. Fixing the parser leaves the other two open.
+</Callout>
+
+## What #4471 holds
+
+<ProblemTable ticket={4471} {tickets} />
+
+## The three problems
+
+### 1 · The parser reads day-first dates month first
+
+Reports: <ProblemCount ticket={4471} problem="parser" />, from <ProblemCount ticket={4471} problem="parser" of="tenants" /> tenants.
+Every tenant on file writes the day first. The shared parser reads every date month first, so a
+date with a day of 12 or less comes out with day and month swapped: "Customer booked 7 April
+and got an invite for 4 July." It reaches people through the app, by email, and through the
+booking-v2 form. This is the bug #4471 describes, and the fix that is queued.
+Ticket: <a href={parserTicket}>#1</a>.
+
+### 2 · The booking-v3 form hint says MM/DD/YYYY
+
+Reports: <ProblemCount ticket={4471} problem="hint" />, from <ProblemCount ticket={4471} problem="hint" of="tenants" /> tenants,
+all through the booking form. These tenants run booking-v3, whose date field prints the hint
+`MM/DD/YYYY`. Their people type what the hint says, month first, and the form reads the date
+the tenant's way, day first. The dates come out swapped just like problem 1, but the parser is
+not involved: the queued parser fix does not touch them. The fix is the form's hint (or the form
+reading what its hint asks for). Ticket: <a href={hintTicket}>#2</a>.
+
+### 3 · Dates move by one day
+
+Reports: <ProblemCount ticket={4471} problem="one-day" />. Each describes a date that moves by exactly one
+day, not a swapped day and month: "Invite says Tuesday 12 May. Calendar says Monday 11 May."
+"Client in Lisbon got Tuesday. Client in Toronto got Monday. Same meeting." The desk already read
+them this way (`desk-notes.json`), but the cause table files them under the tenant's cause, so
+they disappear into problem 1. A day-first parser cannot shift a date by one day; this looks like a
+time zone conversion. Ticket: <a href={oneDayTicket}>#3</a>.
+
+## How these were counted
+
+- Every report merged into #4471 in `reports-4471.json`, counted once by id: the export's pages
+  overlap, so some reports come twice.
+- The cause comes from the tenant (its locale and booking form) and the channel, using
+  `causes.ts`, not from the intake tag. Intake guessed from the reporter's browser, and its tag
+  disagrees with the tenant's cause on dozens of reports.
+- Reports the desk read as a one-day move (`desk-notes.json`) are their own problem.
+- All numbers on this page are computed at render time by `problems.ts`; none is typed in.
+
+## What changes on the desk
+
+- #4471 is not one known issue. Keep problems 2 and 3 open after the parser fix ships.
+- Merging by subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) put all three
+  problems under one ticket: the reporters use the same words for different bugs.
+
+<RenderStamp {signature} />
