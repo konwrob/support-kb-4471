@@ -20,12 +20,22 @@ signature: konwrob
   const tickets = { parser: parserTicket, hint: hintTicket, 'one-day': oneDayTicket };
 </script>
 
-[#4471](/kb/incidents/4471) is marked **known**: one issue, one fix queued. The reports merged
-into it describe three different problems. The queued parser fix closes only the first one.
+[#4471](/kb/incidents/4471) was marked **known**: one issue, one fix queued. The reports merged
+into it describe three different problems. Engineering closed #4471 on 5 October: the parser is
+fixed and the booking-v3 hint will not be fixed, because the form is retired. The one-day move is
+still open.
 
 <Callout kind="warn">
-Not one issue. Three problems, each with its own ticket. Fixing the parser leaves the other two open.
+Not one issue. Three problems, each with its own ticket. Two are done; the one-day move is not.
 </Callout>
+
+## Where each problem stands
+
+| problem | state | from the engineering update on #4471, closed 5 October |
+| --- | --- | --- |
+| parser | closed, fixed | `fix(dates): parse dd/mm for eu locales` |
+| hint | closed, won't fix | booking-v3 form retired |
+| one-day | **open** | not covered: neither change moves a date back by a day |
 
 ## What #4471 holds
 
@@ -39,7 +49,7 @@ Reports: <ProblemCount ticket={4471} problem="parser" />, from <ProblemCount tic
 Every tenant on file writes the day first. The shared parser reads every date month first, so a
 date with a day of 12 or less comes out with day and month swapped: "Customer booked 7 April
 and got an invite for 4 July." It reaches people through the app, by email, and through the
-booking-v2 form. This is the bug #4471 describes, and the fix that is queued. The count follows the
+booking-v2 form. This is the bug #4471 describes. Fixed: `fix(dates): parse dd/mm for eu locales`. The count follows the
 desk's rule: it includes the reports read as a one-day move (problem 3), filed here by tenant.
 Ticket: <a href={parserTicket}>#1</a>.
 
@@ -49,8 +59,8 @@ Reports: <ProblemCount ticket={4471} problem="hint" />, from <ProblemCount ticke
 all through the booking form. These tenants run booking-v3, whose date field prints the hint
 `MM/DD/YYYY`. Their people type what the hint says, month first, and the form reads the date
 the tenant's way, day first. The dates come out swapped just like problem 1, but the parser is
-not involved: the queued parser fix does not touch them. The fix is the form's hint (or the form
-reading what its hint asks for). Ticket: <a href={hintTicket}>#2</a>.
+not involved: the parser fix does not touch them. Won't fix: the booking-v3 form is retired,
+so its hint can no longer swap dates. Ticket: <a href={hintTicket}>#2</a>.
 
 ### 3 · Dates move by one day
 
@@ -59,7 +69,7 @@ day, not a swapped day and month: "Invite says Tuesday 12 May. Calendar says Mon
 "Client in Lisbon got Tuesday. Client in Toronto got Monday. Same meeting." The desk already read
 them this way (`desk-notes.json`). By the desk's rule they stay filed and counted under the
 tenant's cause, problem 1, but the parser fix will not close them. A day-first parser cannot shift a date by one day; this looks like a
-time zone conversion. Ticket: <a href={oneDayTicket}>#3</a>.
+time zone conversion. Still open after the parser fix. Ticket: <a href={oneDayTicket}>#3</a>.
 
 ## How these were counted
 
@@ -74,7 +84,7 @@ time zone conversion. Ticket: <a href={oneDayTicket}>#3</a>.
 
 ## What changes on the desk
 
-- #4471 is not one known issue. Keep problems 2 and 3 open after the parser fix ships.
+- #4471 was not one known issue. Closing it closed two of its problems; keep the one-day move open.
 - Merging by subject line ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) put all three
   problems under one ticket: the reporters use the same words for different bugs.
 
